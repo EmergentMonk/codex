@@ -103,3 +103,14 @@ codex completion fish
 #### `--cd`/`-C` flag
 
 Sometimes it is not convenient to `cd` to the directory you want Codex to use as the "working root" before running Codex. Fortunately, `codex` supports a `--cd` option so you can specify whatever folder you want. You can confirm that Codex is honoring `--cd` by double-checking the **workdir** it reports in the TUI at the start of a new session.
+
+### Next steps
+
+Ready to go deeper? A few good follow-on resources:
+
+- **Understand the contribution workflow.** Read through [docs/contributing.md](./contributing.md) for branching conventions, testing expectations, and PR guidelines so that your first contributions follow the same path as the rest of the team.
+- **Learn advanced capabilities.** Skim [docs/advanced.md](./advanced.md) to see how to chain tools, work with repositories, and mix Codex with shell commands in richer automation flows.
+- **Review sandbox behavior.** If you plan to run commands that touch the filesystem or network, look over [docs/platform-sandboxing.md](./platform-sandboxing.md) for the security model, allowed operations, and troubleshooting tips.
+- **Bookmark the FAQ.** [docs/faq.md](./faq.md) collects common stumbling blocks—CLI flags, authentication hiccups, and environment questions—so you can self-serve answers quickly.
+
+With these under your belt you'll have the context to explore the rest of the documentation or jump straight into writing your own automations.

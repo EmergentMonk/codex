@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Client-Side Audio Processor</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 2rem auto;
+        max-width: 720px;
+        line-height: 1.5;
+      }
+
+      textarea,
+      input,
+      button {
+        font: inherit;
+      }
+
+      textarea {
+        width: 100%;
+        height: 12rem;
+        margin-bottom: 1rem;
+      }
+
+      fieldset {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+      }
+
+      output {
+        display: block;
+        padding: 1rem;
+        background-color: #f5f5f5;
+        border-radius: 0.5rem;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Client-Side Audio Processor</h1>
+    <p>
+      Paste an array of 32-bit floating point samples and configure the modulation
+      parameters. Processing happens entirely in the browser without any REST
+      API calls.
+    </p>
+
+    <form id="audio-form">
+      <fieldset>
+        <legend>Samples</legend>
+        <label for="samples">JSON Array</label>
+        <textarea
+          id="samples"
+          required
+          placeholder="e.g. [0.0, 0.5, -0.25]"
+        ></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Plugin Parameters</legend>
+        <label>
+          Rate (Hz)
+          <input type="number" id="rate" name="rate" min="0.0001" step="0.0001" value="1" required />
+        </label>
+        <br />
+        <label>
+          Depth
+          <input type="number" id="depth" name="depth" min="0" step="0.01" value="0.5" required />
+        </label>
+      </fieldset>
+
+      <button type="submit">Process</button>
+    </form>
+
+    <section>
+      <h2>Processed Output</h2>
+      <output id="output">[]</output>
+    </section>
+
+    <script>
+      /**
+       * Stub implementation of the DSP processing function.
+       * Replace this with real client-side DSP logic.
+       */
+      function process(samples, rate, depth) {
+        console.debug("Processing", { samples, rate, depth });
+        return samples;
+      }
+
+      function parseSamples(rawValue) {
+        const parsed = JSON.parse(rawValue);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error("Samples must be a non-empty JSON array");
+        }
+        return parsed.map((value, index) => {
+          const number = Number(value);
+          if (!Number.isFinite(number)) {
+            throw new Error(`Sample at index ${index} is not a finite number`);
+          }
+          return number;
+        });
+      }
+
+      function getPositiveNumber(input, message) {
+        const number = Number(input.value);
+        if (!Number.isFinite(number) || number <= 0) {
+          throw new Error(message);
+        }
+        return number;
+      }
+
+      function getNonNegativeNumber(input, message) {
+        const number = Number(input.value);
+        if (!Number.isFinite(number) || number < 0) {
+          throw new Error(message);
+        }
+        return number;
+      }
+
+      document.getElementById("audio-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const output = document.getElementById("output");
+
+        try {
+          const samples = parseSamples(document.getElementById("samples").value);
+          const rate = getPositiveNumber(
+            document.getElementById("rate"),
+            "Rate must be a positive number"
+          );
+          const depth = getNonNegativeNumber(
+            document.getElementById("depth"),
+            "Depth must be zero or greater"
+          );
+
+          const processed = process(samples, rate, depth);
+          output.textContent = JSON.stringify(processed, null, 2);
+        } catch (error) {
+          console.error(error);
+          output.textContent = error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

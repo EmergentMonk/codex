@@ -38,15 +38,15 @@ process_org() {
   for repo in $(gh repo list "$ORG" --limit 200 --json name -q '.[].name'); do
     echo "=== Processing $ORG/$repo → branch $TARGET_BRANCH ==="
     
-    # Clean up any existing directory to avoid conflicts
-    rm -rf "$repo"
+    # Clean up any existing directory to avoid conflicts (safely scoped to current dir)
+    rm -rf "./$repo"
     
     # Clone the repository
     gh repo clone "$ORG/$repo" "$repo"
     cd "$repo"
     
-    # Check if the target branch exists on the remote
-    if git ls-remote --heads origin "$TARGET_BRANCH" | grep -q "$TARGET_BRANCH"; then
+    # Check if the target branch exists on the remote (exact match)
+    if git ls-remote --heads origin "$TARGET_BRANCH" | grep -q "refs/heads/$TARGET_BRANCH$"; then
       # Branch exists, checkout and pull latest changes
       git checkout "$TARGET_BRANCH"
       git pull origin "$TARGET_BRANCH"

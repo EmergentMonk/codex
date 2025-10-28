@@ -38,24 +38,27 @@ process_org() {
   for repo in $(gh repo list "$ORG" --limit 200 --json name -q '.[].name'); do
     echo "=== Processing $ORG/$repo → branch $TARGET_BRANCH ==="
     
+    # Clean up any existing directory to avoid conflicts
+    rm -rf "$repo"
+    
     # Clone the repository
     gh repo clone "$ORG/$repo" "$repo"
     cd "$repo"
     
-    # Create or checkout the target branch
-    if ! git rev-parse --verify "$TARGET_BRANCH" >/dev/null 2>&1; then
-      # Branch doesn't exist, create it
-      git checkout -b "$TARGET_BRANCH"
-      git push origin "$TARGET_BRANCH"
-    else
+    # Check if the target branch exists on the remote
+    if git ls-remote --heads origin "$TARGET_BRANCH" | grep -q "$TARGET_BRANCH"; then
       # Branch exists, checkout and pull latest changes
       git checkout "$TARGET_BRANCH"
       git pull origin "$TARGET_BRANCH"
+    else
+      # Branch doesn't exist, create it
+      git checkout -b "$TARGET_BRANCH"
+      git push origin "$TARGET_BRANCH"
     fi
     
     # Fork the repository to the build organization
     echo "Forking into $ORG_BUILD/$repo"
-    gh repo fork "$ORG_BUILD/$repo" --remote --clone=false || true
+    gh repo fork --org "$ORG_BUILD" || true
     
     # Add build remote and push the target branch
     git remote add build "git@github.com:$ORG_BUILD/$repo.git" || true
